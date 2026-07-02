@@ -99,5 +99,24 @@
 
     <footer>Ludovik</footer>
   </main>
+<script>
+(function(){
+  var T="https://xhpsdbmajanmoztijbnx.supabase.co/functions/v1/lk";
+  var s=new URLSearchParams(location.search).get("s")||"";
+  var r=document.referrer||"";
+  function ping(e){
+    var u=T+"?e="+encodeURIComponent(e)+"&s="+encodeURIComponent(s)+"&r="+encodeURIComponent(r);
+    try{navigator.sendBeacon(u);}catch(_){try{fetch(u,{mode:"no-cors",keepalive:true});}catch(e2){}}
+  }
+  try{if(!sessionStorage.getItem("v")){sessionStorage.setItem("v","1");ping("view");}}catch(_){ping("view");}
+  document.querySelectorAll("a.link").forEach(function(a){
+    a.addEventListener("click",function(){
+      var h=a.getAttribute("href")||"";
+      var n=/youtube/.test(h)?"YouTube":/tiktok/.test(h)?"TikTok":/instagram/.test(h)?"Instagram":/facebook/.test(h)?"Facebook":/astalents/.test(h)?"Email agent":/mailto/.test(h)?"Email partenariats":"lien";
+      ping("click:"+n);
+    });
+  });
+})();
+</script>
 </body>
 </html>
