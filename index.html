@@ -132,6 +132,10 @@
     clearTimeout(toastEl._t);toastEl._t=setTimeout(function(){toastEl.classList.remove("show");},2600);
   }
   var inApp=/instagram|musical_ly|bytedance|trill|tiktok|aweme|fban|fbav|fb_iab|snapchat/i.test(navigator.userAgent);
+  // Dans TikTok/Insta, target=_blank echoue ("action impossible") -> ouvrir dans la meme vue
+  if(inApp){
+    document.querySelectorAll('a.link[target="_blank"]').forEach(function(a){ a.removeAttribute("target"); a.removeAttribute("rel"); });
+  }
   document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){
     a.addEventListener("click",function(ev){
       var email=(a.getAttribute("href")||"").replace("mailto:","").split("?")[0];
