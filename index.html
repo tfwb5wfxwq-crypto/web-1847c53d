@@ -131,19 +131,20 @@
     toastEl.textContent=msg;toastEl.classList.add("show");
     clearTimeout(toastEl._t);toastEl._t=setTimeout(function(){toastEl.classList.remove("show");},2600);
   }
-  var inApp=/instagram|musical_ly|bytedance|trill|tiktok|aweme|fban|fbav|fb_iab|snapchat/i.test(navigator.userAgent);
-  // Dans TikTok/Insta, target=_blank echoue ("action impossible") -> ouvrir dans la meme vue
-  if(inApp){
+  // TikTok = seul cas problematique (target=_blank echoue + mailto bloque). Insta gere nativement -> on n'y touche pas.
+  var isTikTok=/musical_ly|bytedance|trill|tiktok|aweme/i.test(navigator.userAgent);
+  if(isTikTok){
     document.querySelectorAll('a.link[target="_blank"]').forEach(function(a){ a.removeAttribute("target"); a.removeAttribute("rel"); });
   }
   document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){
     a.addEventListener("click",function(ev){
+      if(!isTikTok) return; // Insta/desktop : mailto marche, on laisse faire
+      ev.preventDefault();
       var email=(a.getAttribute("href")||"").replace("mailto:","").split("?")[0];
       var copied=false;
       try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(email); copied=true; } }catch(_){}
       if(!copied){ try{ var ta=document.createElement("textarea");ta.value=email;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);copied=true; }catch(_){} }
-      toast(copied ? ("✅ "+email+" copié") : email);
-      if(inApp){ ev.preventDefault(); } // dans TikTok/Insta le mailto ne s'ouvre pas -> on copie
+      toast(copied ? ("✅ "+email+" copié, colle-le dans ton mail") : email);
     });
   });
 })();
