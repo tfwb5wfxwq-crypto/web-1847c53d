@@ -60,6 +60,11 @@
     font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s ease}
   .send:active{opacity:.6} .send:disabled{opacity:.3;cursor:default}
   footer{margin-top:36px;text-align:center;color:var(--muted);font-size:12px}
+  .toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);
+    background:#1c1c1e;color:#fff;padding:13px 20px;border-radius:14px;font-size:14px;font-weight:500;
+    opacity:0;transition:opacity .22s ease,transform .22s ease;pointer-events:none;z-index:100;
+    box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:88vw;text-align:center}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
@@ -116,6 +121,25 @@
       var h=a.getAttribute("href")||"";
       var n=/youtube/.test(h)?"YouTube":/tiktok/.test(h)?"TikTok":/instagram/.test(h)?"Instagram":/facebook/.test(h)?"Facebook":/astalents/.test(h)?"Email agent":/mailto/.test(h)?"Email partenariats":"lien";
       ping("click:"+n);
+    });
+  });
+
+  // Toast + copie email (mailto est cassé dans TikTok/Insta)
+  var toastEl;
+  function toast(msg){
+    if(!toastEl){toastEl=document.createElement("div");toastEl.className="toast";document.body.appendChild(toastEl);}
+    toastEl.textContent=msg;toastEl.classList.add("show");
+    clearTimeout(toastEl._t);toastEl._t=setTimeout(function(){toastEl.classList.remove("show");},2600);
+  }
+  var inApp=/instagram|musical_ly|bytedance|trill|tiktok|aweme|fban|fbav|fb_iab|snapchat/i.test(navigator.userAgent);
+  document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){
+    a.addEventListener("click",function(ev){
+      var email=(a.getAttribute("href")||"").replace("mailto:","").split("?")[0];
+      var copied=false;
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(email); copied=true; } }catch(_){}
+      if(!copied){ try{ var ta=document.createElement("textarea");ta.value=email;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);copied=true; }catch(_){} }
+      toast(copied ? ("✅ "+email+" copié") : email);
+      if(inApp){ ev.preventDefault(); } // dans TikTok/Insta le mailto ne s'ouvre pas -> on copie
     });
   });
 })();
